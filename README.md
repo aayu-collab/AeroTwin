@@ -6,7 +6,7 @@ A fully offline, interactive frontend demonstrator for aero-piston engine health
 
 **This is not an engine controller, validated thermodynamic model, trained ML system, secure backend, or aircraft software.** All operational outputs are synthetic. No real-engine accuracy or certification is claimed. No ECU commands exist.
 
-## Sabse aasaan tareeka / easiest way to run
+## Easiest way to run
 
 1. Extract the ZIP into a folder.
 2. Open **AeroTwin.html** in current Chrome, Edge or Firefox.
