@@ -1,0 +1,24 @@
+import assert from 'node:assert/strict';
+import {seedStore,initialProfile,channels} from '../src/mock/data';
+import {aggregate,band,can,telemetry,simulate,activeChannels,random,api} from '../src/services/api';
+const seed=seedStore(),engine=seed.engines[0],config=seed.configs[engine.id];let checks=0;
+function test(name:string,fn:()=>void){fn();checks++;console.log('PASS '+name)}
+test('All measured channel families represented',()=>{for(const key of ['rpm','cht_4','egt_4','oil_press','oil_temp','fuel_flow','vib_rms_x','vib_band_6','batt_volt','alt_current','inj_timing_deg','ecu_status'])assert(channels.some(c=>c.key===key));});
+test('Four/six cylinder and cooling configuration',()=>{assert(!activeChannels(config).some(c=>c.key==='cht_6'));assert(activeChannels({...config,cylinders:6}).some(c=>c.key==='cht_6'));assert(!activeChannels({...config,cooling:'Air'}).some(c=>c.key==='coolant_temp'));});
+test('Worst-case-sensitive health aggregation',()=>{assert.equal(aggregate(engine,config),79);assert(aggregate({...engine,hi:[99,99,10,99,99,99]},config)<50);});
+test('Configured health bands',()=>{assert.equal(band(90),'Healthy');assert.equal(band(70),'Watch');assert.equal(band(40),'Warning');assert.equal(band(39),'Critical');});
+test('Seeded telemetry is deterministic and finite',()=>{assert.deepEqual(telemetry(100,engine,config),telemetry(100,engine,config));assert(telemetry(100,engine,config).every(s=>[s.measured,s.predicted,s.residual].every(Number.isFinite)));});
+test('Residual identity',()=>{for(const s of telemetry(100,engine,config))assert.equal(s.residual,s.measured-s.predicted);});
+test('Sensor fault and tagged virtual substitution',()=>{const raw=telemetry(4,engine,config,'Sensor drift/failure').find(s=>s.key==='cht_2')!;const virtual=telemetry(4,engine,config,'Sensor drift/failure',true).find(s=>s.key==='cht_2')!;assert.equal(raw.measured,248);assert(virtual.reconstructed);assert.equal(virtual.measured,virtual.predicted);});
+test('Fault changes relevant channels',()=>{const a=telemetry(10,engine,config),b=telemetry(10,engine,config,'Lubrication issue');assert(b.find(s=>s.key==='oil_press')!.measured<a.find(s=>s.key==='oil_press')!.measured);assert(b.find(s=>s.key==='oil_temp')!.measured>a.find(s=>s.key==='oil_temp')!.measured);});
+test('Mission trajectories deterministic by seed/profile',()=>{assert.deepEqual(simulate(initialProfile,engine,config).series,simulate(initialProfile,engine,config).series);assert.notDeepEqual(simulate(initialProfile,engine,config).series,simulate({...initialProfile,seed:43},engine,config).series);});
+test('Hot/high risk responds to revised altitude',()=>{assert.equal(simulate(initialProfile,engine,config).risk,'ELEVATED');assert.equal(simulate({...initialProfile,altitude:6000},engine,config).risk,'LOW');});
+test('Thermal aggregate matches actual plotted maximum',()=>{const run=simulate(initialProfile,engine,config);assert.equal(run.peak,Math.max(...run.series.map(s=>s.cht)));assert.equal(run.margin,config.chtLimit-run.peak);});
+test('RUL quantiles ordered and values finite',()=>{const run=simulate(initialProfile,engine,config);assert(run.rulUsed[0]<=run.rulUsed[1]&&run.rulUsed[1]<=run.rulUsed[2]);assert(run.series.every(s=>Object.values(s).every(Number.isFinite)));});
+test('Excess fuel demand drives high risk',()=>assert.equal(simulate({...initialProfile,fuel:1},engine,config).risk,'HIGH'));
+test('Role capabilities match demo scope',()=>{assert(can('Operator','ack'));assert(!can('Operator','simulate'));assert(!can('Engineer','admin'));assert(can('Admin','admin'));assert(can('Maintenance','maintenance'));assert(!can(null,'ack'));});
+await api.mutate(null,'Set operator','test',s=>{s.session='Operator'});
+await assert.rejects(()=>api.mutate('admin','Forbidden','test',()=>{}),/not permitted/);checks++;console.log('PASS Service authorization blocks forbidden write');
+assert(api.getSnapshot().audit.some(e=>e.result.includes('Denied')));checks++;console.log('PASS Forbidden action creates audit event');
+api.failNext();await assert.rejects(()=>api.read(),/Simulated connection error/);await api.read();checks++;console.log('PASS One-shot failure recovers');
+console.log(`${checks} core checks passed.`);

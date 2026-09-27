@@ -1,0 +1,14 @@
+import React,{createContext,useContext,useState,useSyncExternalStore,useEffect} from 'react';
+import {api,aggregate,activeChannels,telemetry,can} from '../services/api';
+import type {Action,Fault,Source,Channel} from '../types';
+export const Context=createContext<any>(null);
+export const useApp=()=>useContext(Context);
+export function Provider({children}:any){const store=useSyncExternalStore(api.subscribe,api.getSnapshot);const [tail,setTail]=useState('AT-024');const [tick,setTick]=useState(0);const [link,setLink]=useState(true);const [faults,setFaults]=useState<Record<string,Fault>>({});const [virtuals,setVirtuals]=useState<Record<string,boolean>>({});const [ood,setOod]=useState(false);const [source,setSource]=useState<Source>('SYNTHETIC');const [toast,setToast]=useState<any>(null);const [busy,setBusy]=useState(false);const [route,setRoute]=useState(location.hash.slice(1)||'overview');const engine=store.engines.find(e=>e.id===tail)||store.engines[0];const config=store.configs[engine.id];const fault=faults[tail]||'Normal';const virtual=virtuals[tail]||false;
+useEffect(()=>{const f=()=>{setRoute(location.hash.slice(1)||'overview');window.scrollTo(0,0)};window.addEventListener('hashchange',f);return()=>window.removeEventListener('hashchange',f)},[]);
+useEffect(()=>{if(!link)return;const id=setInterval(()=>setTick(t=>t+1),1000/store.settings.rate);return()=>clearInterval(id)},[link,store.settings.rate]);
+useEffect(()=>{if(!toast)return;const id=setTimeout(()=>setToast(null),5000);return()=>clearTimeout(id)},[toast]);
+const go=(r:string)=>{location.hash=r;};const notify=(message:string,error=false)=>setToast({message,error});
+const mutate=async(action:Action|null,label:string,target:string,fn:any)=>{setBusy(true);try{await api.mutate(action,label,target,fn);notify(label+' — saved locally');return true}catch(e:any){notify(e.message,true);return false}finally{setBusy(false)}};
+const setFault=(f:Fault)=>setFaults(old=>({...old,[tail]:f}));const setVirtual=(v:boolean)=>setVirtuals(old=>({...old,[tail]:v}));
+function display(value:number,unit:string,delta=false){let u=unit,v=value;if(unit==='°C'&&store.settings.temperature==='F'){v=delta?value*1.8:value*1.8+32;u='°F';}if(unit==='PSI'&&store.settings.pressure==='bar'){v=value*.0689476;u='bar';}if(unit==='L/h'&&store.settings.fuel==='kg/h'){v=value*.72;u='kg/h';}return {value:v,unit:u,text:(Math.abs(v)>=100?Math.round(v).toLocaleString():v.toFixed(Math.abs(v)<1?3:1))};}
+return <Context.Provider value={{store,engine,config,tail,setTail,tick,link,setLink,fault,setFault,virtual,setVirtual,ood,setOod,source,setSource,toast,setToast,busy,route,go,notify,mutate,can:(action:Action)=>can(store.session,action),hi:aggregate(engine,config),samples:telemetry(tick,engine,config,fault,virtual),channels:activeChannels(config),display}}>{children}</Context.Provider>}

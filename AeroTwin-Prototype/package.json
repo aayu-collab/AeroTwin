@@ -1,0 +1,29 @@
+{
+  "name": "aerotwin-frontend-prototype",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Offline synthetic AeroTwin frontend demonstrator, SIH PS 26054",
+  "scripts": {
+    "build": "node build.mjs",
+    "serve": "node serve.mjs",
+    "typecheck:core": "tsc --noEmit --target ES2022 --module esnext --moduleResolution bundler --lib ES2022,DOM src/types/index.ts src/mock/data.ts src/services/api.ts src/utils/export.ts",
+    "test": "node tests/run-core.mjs",
+    "test:browser": "node tests/browser.mjs"
+  },
+  "dependencies": {
+    "react": "19.2.8",
+    "react-dom": "19.2.8",
+    "react-icons": "5.7.0"
+  },
+  "devDependencies": {
+    "esbuild": "0.25.0",
+    "typescript": "^5.8.0",
+    "playwright": "^1.51.0",
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0"
+  },
+  "engines": {
+    "node": ">=20.19.0"
+  }
+}

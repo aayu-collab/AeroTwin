@@ -1,0 +1,129 @@
+{
+  "checks": [
+    {
+      "name": "Demo sign-in and onboarding",
+      "status": "pass"
+    },
+    {
+      "name": "Route overview",
+      "status": "pass"
+    },
+    {
+      "name": "Route twin",
+      "status": "pass"
+    },
+    {
+      "name": "Route telemetry",
+      "status": "pass"
+    },
+    {
+      "name": "Route alerts",
+      "status": "pass"
+    },
+    {
+      "name": "Route diagnostics",
+      "status": "pass"
+    },
+    {
+      "name": "Route maintenance",
+      "status": "pass"
+    },
+    {
+      "name": "Route simulator",
+      "status": "pass"
+    },
+    {
+      "name": "Route replay",
+      "status": "pass"
+    },
+    {
+      "name": "Route reports",
+      "status": "pass"
+    },
+    {
+      "name": "Route fleet",
+      "status": "pass"
+    },
+    {
+      "name": "Route system",
+      "status": "pass"
+    },
+    {
+      "name": "Route admin",
+      "status": "pass"
+    },
+    {
+      "name": "Route settings",
+      "status": "pass"
+    },
+    {
+      "name": "Route help",
+      "status": "pass"
+    },
+    {
+      "name": "Alert acknowledgment and persistence",
+      "status": "pass"
+    },
+    {
+      "name": "Telemetry search and empty-state recovery",
+      "status": "pass"
+    },
+    {
+      "name": "3D orbit, explode and subsystem controls",
+      "status": "pass"
+    },
+    {
+      "name": "Mission simulation, parameter change and comparison",
+      "status": "pass"
+    },
+    {
+      "name": "Replay seek, event jump, speed and reanalysis",
+      "status": "pass"
+    },
+    {
+      "name": "Maintenance schedule and annotated action",
+      "status": "pass"
+    },
+    {
+      "name": "Sensor fault injection and virtual estimate",
+      "status": "pass"
+    },
+    {
+      "name": "Link loss freezes sample clock and recovery",
+      "status": "pass"
+    },
+    {
+      "name": "CSV report download and print preview",
+      "status": "pass"
+    },
+    {
+      "name": "Units preference persists",
+      "status": "pass"
+    },
+    {
+      "name": "One-shot service error",
+      "status": "pass"
+    },
+    {
+      "name": "Responsive routes 820",
+      "status": "pass"
+    },
+    {
+      "name": "Responsive routes 390",
+      "status": "pass"
+    },
+    {
+      "name": "Mobile drawer navigation",
+      "status": "pass"
+    },
+    {
+      "name": "Operator restrictions",
+      "status": "pass"
+    },
+    {
+      "name": "404 recovery",
+      "status": "pass"
+    }
+  ],
+  "errors": []
+}

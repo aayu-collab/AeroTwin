@@ -1,0 +1,18 @@
+PASS All measured channel families represented
+PASS Four/six cylinder and cooling configuration
+PASS Worst-case-sensitive health aggregation
+PASS Configured health bands
+PASS Seeded telemetry is deterministic and finite
+PASS Residual identity
+PASS Sensor fault and tagged virtual substitution
+PASS Fault changes relevant channels
+PASS Mission trajectories deterministic by seed/profile
+PASS Hot/high risk responds to revised altitude
+PASS Thermal aggregate matches actual plotted maximum
+PASS RUL quantiles ordered and values finite
+PASS Excess fuel demand drives high risk
+PASS Role capabilities match demo scope
+PASS Service authorization blocks forbidden write
+PASS Forbidden action creates audit event
+PASS One-shot failure recovers
+17 core checks passed.

@@ -1,0 +1,74 @@
+openapi: 3.1.0
+info:
+  title: AeroTwin proposed backend API
+  version: 1.0.0-proposal
+  description: Design proposal only. These endpoints are not implemented by the frontend.
+servers:
+  - url: /api/v1
+paths:
+  /twins/{engineId}:
+    get:
+      summary: Versioned twin snapshot
+      parameters:
+        - name: engineId
+          in: path
+          required: true
+          schema: {type: string}
+      responses:
+        '200':
+          description: Twin state with measured, predicted, residual, quality and provenance
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [engineId, source, modelVersion, configVersion, samples, stale, ood]
+                properties:
+                  engineId: {type: string}
+                  source: {type: string, enum: [SYNTHETIC, REPLAY, LIVE]}
+                  modelVersion: {type: string}
+                  configVersion: {type: string}
+                  stale: {type: boolean}
+                  ood: {type: boolean}
+                  samples:
+                    type: array
+                    items:
+                      type: object
+                      required: [key, measured, predicted, residual, unit, quality]
+                      properties:
+                        key: {type: string}
+                        measured: {type: number}
+                        predicted: {type: number}
+                        residual: {type: number}
+                        unit: {type: string}
+                        quality: {type: string, enum: [valid, stale, rejected, reconstructed]}
+        '403': {description: Server-authorized access denied}
+  /simulations:
+    post:
+      summary: Submit an asynchronous mission-profile simulation
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [engineId, seed, durationHours, altitudeFt, ambientC, throttlePercent]
+              properties:
+                engineId: {type: string}
+                seed: {type: integer}
+                durationHours: {type: number, minimum: 0.5, maximum: 30}
+                altitudeFt: {type: number, minimum: 0, maximum: 30000}
+                ambientC: {type: number, minimum: -40, maximum: 55}
+                throttlePercent: {type: number, minimum: 0, maximum: 100}
+      responses:
+        '202': {description: Job accepted; retrieve versioned result separately}
+        '422': {description: Invalid profile}
+  /health/ready:
+    get:
+      responses:
+        '200': {description: All required components ready}
+        '503': {description: Degraded component details}
+x-websocket-contract:
+  endpoint: /api/v1/stream
+  envelope: [eventId, engineId, tsSource, tsReceived, schemaVersion, modelVersion, configVersion, source, payload]
+  eventTypes: [telemetry.sample, twin.snapshot, incident.updated, link.degraded, model.changed]
+  reconciliation: Resume by event ID. Backend enforces ordering and idempotent engine/source-timestamp keys.

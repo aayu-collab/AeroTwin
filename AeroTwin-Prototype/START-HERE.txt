@@ -1,0 +1,13 @@
+AEROTWIN — SIH 26054
+
+1. Extract this entire folder.
+2. Double-click AeroTwin.html.
+3. Choose Engineer (or Admin for all administration flows).
+4. Tick the simulation acknowledgment and enter the workspace.
+
+No installation, backend, internet or passwords needed for the HTML.
+Use Chrome, Edge or Firefox, not a file-preview app.
+
+3D: open Digital twin, drag to rotate, use + / - to zoom, Explode to inspect.
+All source code is in src/. Full instructions and limitations are in README.md.
+All engine data and AI outputs are simulated, advisory-only.
